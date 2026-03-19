@@ -1,5 +1,4 @@
-// 使用 Next.js API 路由作為代理，避免 CORS 問題
-const API_BASE_URL = "/api/gas";
+const API_BASE_URL = "https://script.google.com/macros/s/AKfycbxCi-mIw3hBgUfBkEhSP_SqubTUGu4O9ZZqeUzYorSORLW8qozA1BUvyeFdH0ZehtuK/exec";
 
 // --- Types ---
 export interface Vocabulary {
