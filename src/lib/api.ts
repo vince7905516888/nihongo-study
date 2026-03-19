@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://script.google.com/macros/s/AKfycbxCi-mIw3hBgUfBkEhSP_SqubTUGu4O9ZZqeUzYorSORLW8qozA1BUvyeFdH0ZehtuK/exec";
+const API_BASE_URL = "/api/gas";
 
 // --- Types ---
 export interface Vocabulary {
