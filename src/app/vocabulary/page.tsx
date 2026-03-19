@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { vocabularyAPI, type Vocabulary } from "@/lib/api";
+import { speakJapanese } from "@/lib/speech";
 
 const LEVELS = ["全部", "N5", "N4", "N3", "N2", "N1"];
 
@@ -80,20 +81,30 @@ export default function VocabularyPage() {
             <p className="text-gray-400 col-span-full text-center py-8">沒有找到符合的單字</p>
           ) : (
             words.map((w) => (
-              <button
+              <div
                 key={w.id}
-                onClick={() => setSelected(w)}
                 className="text-left border border-gray-200 rounded-xl p-4 hover:border-pink-300 hover:shadow-sm transition-all bg-white"
               >
-                <div className="text-xl font-bold text-gray-800">{w.word}</div>
-                <div className="text-sm text-pink-600 mt-1">{w.reading}</div>
-                <div className="text-sm text-gray-600 mt-1 line-clamp-2">{w.meaning}</div>
+                <div className="flex justify-between items-start">
+                  <button onClick={() => setSelected(w)} className="text-left flex-1">
+                    <div className="text-xl font-bold text-gray-800">{w.word}</div>
+                    <div className="text-sm text-pink-600 mt-1">{w.reading}</div>
+                    <div className="text-sm text-gray-600 mt-1 line-clamp-2">{w.meaning}</div>
+                  </button>
+                  <button
+                    onClick={() => speakJapanese(w.word)}
+                    className="ml-2 text-xl hover:scale-110 transition-transform"
+                    title="發音"
+                  >
+                    🔊
+                  </button>
+                </div>
                 {w.level && (
                   <span className="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
                     {w.level}
                   </span>
                 )}
-              </button>
+              </div>
             ))
           )}
         </div>
@@ -111,7 +122,16 @@ export default function VocabularyPage() {
           >
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h2 className="text-3xl font-bold">{selected.word}</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-3xl font-bold">{selected.word}</h2>
+                  <button
+                    onClick={() => speakJapanese(selected.word)}
+                    className="text-2xl hover:scale-110 transition-transform"
+                    title="發音"
+                  >
+                    🔊
+                  </button>
+                </div>
                 <p className="text-pink-600 mt-1">{selected.reading}</p>
               </div>
               {selected.level && (
