@@ -1,4 +1,5 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+// 使用 Next.js API 路由作為代理，避免 CORS 問題
+const API_BASE_URL = "/api/gas";
 
 // --- Types ---
 export interface Vocabulary {
