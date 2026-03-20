@@ -92,7 +92,7 @@ export default function VocabularyPage() {
                     <div className="text-sm text-gray-600 mt-1 line-clamp-2">{w.meaning}</div>
                   </button>
                   <button
-                    onClick={() => speakJapanese(w.word)}
+                    onClick={() => speakJapanese(w.reading)}
                     className="ml-2 text-xl hover:scale-110 transition-transform"
                     title="發音"
                   >
@@ -125,7 +125,7 @@ export default function VocabularyPage() {
                 <div className="flex items-center gap-3">
                   <h2 className="text-3xl font-bold">{selected.word}</h2>
                   <button
-                    onClick={() => speakJapanese(selected.word)}
+                    onClick={() => speakJapanese(selected.reading)}
                     className="text-2xl hover:scale-110 transition-transform"
                     title="發音"
                   >
