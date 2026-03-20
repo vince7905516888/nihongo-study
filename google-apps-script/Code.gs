@@ -233,18 +233,19 @@ function getQuizQuestions(params) {
 function buildVocabQuestion(row, allRows) {
   var others = [];
   for (var i = 0; i < allRows.length; i++) {
-    if (String(allRows[i].id) !== String(row.id)) others.push(allRows[i].meaning);
+    if (String(allRows[i].id) !== String(row.id)) others.push(allRows[i].reading);
   }
   others.sort(function() { return Math.random() - 0.5; });
-  var options = [row.meaning, others[0] || "?", others[1] || "?", others[2] || "?"];
+  var options = [row.reading, others[0] || "?", others[1] || "?", others[2] || "?"];
   options.sort(function() { return Math.random() - 0.5; });
   return {
     id: String(row.id),
     type: "vocabulary",
-    question: row.reading,
+    question: row.meaning,
     word: row.word,
+    audio: row.reading,
     options: options,
-    answer: row.meaning
+    answer: row.reading
   };
 }
 
@@ -271,7 +272,7 @@ function submitAnswer(questionId, userAnswer) {
     var vocabRows = sheetToObjects(getSheet("Vocabulary"));
     for (var i = 0; i < vocabRows.length; i++) {
       if (String(vocabRows[i].id) === String(questionId)) {
-        correctAnswer = vocabRows[i].meaning;
+        correctAnswer = vocabRows[i].reading;
         break;
       }
     }

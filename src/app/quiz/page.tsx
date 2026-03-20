@@ -35,7 +35,7 @@ export default function QuizPage() {
       const timer = setTimeout(() => {
         if (!spokenRef.current) {
           spokenRef.current = true;
-          speakJapanese(q.question);
+          speakJapanese(q.audio || q.answer);
         }
       }, 400);
       return () => clearTimeout(timer);
@@ -157,7 +157,7 @@ export default function QuizPage() {
             {wrongAnswers.map((w, i) => (
               <div key={i} className="bg-white border border-red-200 rounded-xl p-4 space-y-2">
                 <div className="flex items-center gap-2">
-                  <button onClick={() => speakJapanese(w.question.question)}
+                  <button onClick={() => speakJapanese(w.question.audio || w.question.answer)}
                     className="text-lg hover:scale-110 transition-transform" title="播放語音">🔊</button>
                   <span className="font-bold text-gray-800">{w.question.question}</span>
                   {w.question.word && <span className="text-gray-400 text-sm">（{w.question.word}）</span>}
@@ -198,13 +198,11 @@ export default function QuizPage() {
           <div className="text-center space-y-3">
             {q.type === "vocabulary" ? (
               <>
-                <p className="text-sm text-gray-500">👂 聽語音，選出正確的中文意思</p>
-                <div className="flex items-center justify-center gap-3">
-                  <span className="text-2xl font-bold text-gray-800">{q.question}</span>
-                  <button onClick={() => speakJapanese(q.question)}
-                    className="text-2xl hover:scale-110 transition-transform" title="重播語音">🔊</button>
-                </div>
-                {q.word && <p className="text-gray-400 text-sm">{q.word}</p>}
+                <p className="text-sm text-gray-500">👂 聽語音，選出正確的日文讀音</p>
+                <p className="text-3xl font-bold text-gray-800">{q.question}</p>
+                {q.word && <p className="text-pink-500 text-lg">{q.word}</p>}
+                <button onClick={() => speakJapanese(q.audio || q.answer)}
+                  className="text-3xl hover:scale-110 transition-transform" title="重播語音">🔊</button>
               </>
             ) : (
               <p className="text-lg font-medium text-gray-800">{q.question}</p>
