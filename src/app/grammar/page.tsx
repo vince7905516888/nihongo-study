@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { grammarAPI, type Grammar } from "@/lib/api";
+import { speakJapanese } from "@/lib/speech";
 
 const BOOKS = [
   { id: "初級1", label: "大家的日本語 初級1", color: "bg-green-50 border-green-200 hover:bg-green-100", textColor: "text-green-700", badge: "bg-green-100 text-green-700" },
@@ -182,7 +183,10 @@ export default function GrammarPage() {
                             <ul className="space-y-2">
                               {g.examples.map((ex, i) => (
                                 <li key={i} className="bg-gray-50 rounded-lg p-3">
-                                  <p className="font-medium text-gray-800">{ex.japanese}</p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium text-gray-800">{ex.japanese}</p>
+                                    <button onClick={() => speakJapanese(ex.japanese)} className="text-lg hover:scale-110 transition-transform" title="播放語音">🔊</button>
+                                  </div>
                                   <p className="text-sm text-gray-500 mt-1">{ex.english}</p>
                                 </li>
                               ))}
