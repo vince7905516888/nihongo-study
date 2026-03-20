@@ -61,25 +61,15 @@ export default function QuizPage() {
     }
   };
 
-  const handleAnswer = async (option: string) => {
+  const handleAnswer = (option: string) => {
     if (selected) return;
     setSelected(option);
-    try {
-      const result = await quizAPI.submitAnswer(q.id, option);
-      setFeedback(result);
-      if (result.correct) {
-        setScore(s => s + 1);
-      } else {
-        setWrongAnswers(prev => [...prev, { question: q, userAnswer: option }]);
-      }
-    } catch {
-      const correct = option === q.answer;
-      setFeedback({ correct });
-      if (correct) {
-        setScore(s => s + 1);
-      } else {
-        setWrongAnswers(prev => [...prev, { question: q, userAnswer: option }]);
-      }
+    const correct = option === q.answer;
+    setFeedback({ correct });
+    if (correct) {
+      setScore(s => s + 1);
+    } else {
+      setWrongAnswers(prev => [...prev, { question: q, userAnswer: option }]);
     }
   };
 
