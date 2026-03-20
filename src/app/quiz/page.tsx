@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { quizAPI, type QuizQuestion } from "@/lib/api";
+import { quizAPI, vocabularyAPI, grammarAPI, type QuizQuestion } from "@/lib/api";
 import { speakJapanese } from "@/lib/speech";
 
 type QuizType = "vocabulary" | "grammar";
@@ -14,7 +14,9 @@ interface WrongAnswer {
 
 export default function QuizPage() {
   const [quizType, setQuizType] = useState<QuizType>("vocabulary");
-  const [level, setLevel] = useState("N5");
+  const [selectedBook, setSelectedBook] = useState("初級1");
+  const [selectedLesson, setSelectedLesson] = useState("全部");
+  const [lessons, setLessons] = useState<string[]>([]);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
@@ -25,6 +27,13 @@ export default function QuizPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const spokenRef = useRef(false);
+
+  // 載入課程列表
+  useEffect(() => {
+    const api = quizType === "vocabulary" ? vocabularyAPI : grammarAPI;
+    api.getLessons(selectedBook).then(data => setLessons(data)).catch(() => setLessons([]));
+    setSelectedLesson("全部");
+  }, [quizType, selectedBook]);
 
   const q = questions[currentIndex];
 
@@ -46,7 +55,9 @@ export default function QuizPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await quizAPI.getQuestions({ type: quizType, level, count: 25 });
+      const params: { type: string; count: number; book?: string; lesson?: string } = { type: quizType, count: 25, book: selectedBook };
+      if (selectedLesson !== "全部") params.lesson = selectedLesson;
+      const data = await quizAPI.getQuestions(params);
       setQuestions(data);
       setCurrentIndex(0);
       setScore(0);
@@ -101,11 +112,22 @@ export default function QuizPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">難度等級</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">教材</label>
+            <div className="flex gap-2">
+              {["初級1", "初級2"].map(b => (
+                <button key={b} onClick={() => setSelectedBook(b)}
+                  className={`flex-1 py-2 rounded-lg font-medium transition-colors ${selectedBook === b ? "bg-purple-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                  大家的日本語 {b}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">課程</label>
             <div className="flex gap-2 flex-wrap">
-              {["N5", "N4", "N3", "N2", "N1"].map(l => (
-                <button key={l} onClick={() => setLevel(l)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${level === l ? "bg-purple-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+              {["全部", ...lessons].map(l => (
+                <button key={l} onClick={() => setSelectedLesson(l)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedLesson === l ? "bg-purple-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
                   {l}
                 </button>
               ))}

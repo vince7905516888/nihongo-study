@@ -86,7 +86,7 @@ export const grammarAPI = {
 
 // --- Quiz API ---
 export const quizAPI = {
-  getQuestions: (params?: { type?: string; level?: string; count?: number }) =>
+  getQuestions: (params?: { type?: string; level?: string; count?: number; book?: string; lesson?: string }) =>
     gasGet<QuizQuestion[]>("getQuizQuestions", params as Record<string, string>),
   submitAnswer: (questionId: string, answer: string) =>
     gasPost<{ correct: boolean; explanation?: string }>("submitAnswer", { questionId, answer }),
