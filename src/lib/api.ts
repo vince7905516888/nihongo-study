@@ -19,6 +19,8 @@ export interface Grammar {
   explanation: string;
   examples?: { japanese: string; english: string }[];
   level?: string;
+  book?: string;
+  lesson?: string;
 }
 
 export interface QuizQuestion {
@@ -72,8 +74,12 @@ export const vocabularyAPI = {
 
 // --- Grammar API ---
 export const grammarAPI = {
-  getAll: (params?: { level?: string; search?: string }) =>
+  getAll: (params?: { level?: string; search?: string; book?: string; lesson?: string }) =>
     gasGet<Grammar[]>("getGrammar", params as Record<string, string>),
+  getLessons: async (book: string) => {
+    const res = await gasGet<unknown>("getGrammarLessons", { book });
+    return Array.isArray(res) ? res as string[] : [];
+  },
   getById: (id: string) =>
     gasGet<Grammar>("getGrammarById", { id }),
 };
