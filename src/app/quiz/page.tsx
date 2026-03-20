@@ -201,7 +201,7 @@ export default function QuizPage() {
 
           {/* 選項 */}
           <div className="space-y-3">
-            {q.options.map(opt => {
+            {q.options.filter(opt => opt !== "?").map(opt => {
               let cls = "border border-gray-200 text-gray-700 hover:bg-gray-50";
               if (selected) {
                 if (opt === q.answer) cls = "border-green-400 bg-green-50 text-green-700";
