@@ -60,8 +60,10 @@ async function gasPost<T>(action: string, body: Record<string, unknown>): Promis
 export const vocabularyAPI = {
   getAll: (params?: { level?: string; search?: string; book?: string; lesson?: string }) =>
     gasGet<Vocabulary[]>("getVocabulary", params as Record<string, string>),
-  getLessons: (book: string) =>
-    gasGet<string[]>("getLessons", { book }),
+  getLessons: async (book: string) => {
+    const res = await gasGet<unknown>("getLessons", { book });
+    return Array.isArray(res) ? res as string[] : [];
+  },
   getById: (id: string) =>
     gasGet<Vocabulary>("getVocabularyById", { id }),
 };

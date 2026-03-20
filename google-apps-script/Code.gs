@@ -105,19 +105,22 @@ function getVocabulary(params) {
 function getLessons(book) {
   var sheet = getSheet("Vocabulary");
   var rows = sheetToObjects(sheet);
-  var lessonSet = {};
+  var lessonList = [];
+  var seen = {};
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
     if (book && r.book !== book) continue;
-    if (r.lesson) lessonSet[r.lesson] = true;
+    if (r.lesson && !seen[r.lesson]) {
+      seen[r.lesson] = true;
+      lessonList.push(r.lesson);
+    }
   }
-  var lessons = Object.keys(lessonSet);
-  lessons.sort(function(a, b) {
-    var na = parseInt(a.replace(/[^0-9]/g, "")) || 0;
-    var nb = parseInt(b.replace(/[^0-9]/g, "")) || 0;
+  lessonList.sort(function(a, b) {
+    var na = parseInt(String(a).replace(/[^0-9]/g, "")) || 0;
+    var nb = parseInt(String(b).replace(/[^0-9]/g, "")) || 0;
     return na - nb;
   });
-  return lessons;
+  return lessonList;
 }
 
 function getVocabularyById(id) {
