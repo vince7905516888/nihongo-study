@@ -46,7 +46,7 @@ export default function QuizPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await quizAPI.getQuestions({ type: quizType, level, count: 10 });
+      const data = await quizAPI.getQuestions({ type: quizType, level, count: 25 });
       setQuestions(data);
       setCurrentIndex(0);
       setScore(0);
@@ -138,15 +138,15 @@ export default function QuizPage() {
 
   // ---- Result ----
   if (state === "result") {
-    const pct = Math.round((score / questions.length) * 100);
+    const totalScore = Math.round((score / questions.length) * 100);
     return (
       <div className="max-w-lg mx-auto space-y-6">
         <h1 className="text-2xl font-bold">測驗結果</h1>
         <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
-          <div className="text-5xl font-bold text-purple-600">{pct}%</div>
+          <div className="text-5xl font-bold text-purple-600">{totalScore} <span className="text-2xl">/ 100</span></div>
           <p className="text-gray-600 mt-2">{questions.length} 題中答對 {score} 題</p>
           <div className="mt-3 text-2xl">
-            {pct >= 80 ? "🎉 優秀！" : pct >= 60 ? "👍 繼續加油！" : "📚 多加練習！"}
+            {totalScore >= 80 ? "🎉 優秀！" : totalScore >= 60 ? "👍 繼續加油！" : "📚 多加練習！"}
           </div>
         </div>
 
@@ -227,7 +227,7 @@ export default function QuizPage() {
           </div>
 
           {/* 回饋 */}
-          {feedback && (
+          {selected && feedback && (
             <div className={`rounded-lg p-3 text-sm ${feedback.correct ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
               {feedback.correct ? "✅ 正確！" : `❌ 正確答案是：${q.answer}`}
             </div>
