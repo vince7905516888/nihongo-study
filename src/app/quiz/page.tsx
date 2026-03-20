@@ -12,6 +12,18 @@ interface WrongAnswer {
   userAnswer: string;
 }
 
+function extractHiragana(text: string) {
+  return text.replace(/[^\u3041-\u3096]/g, "");
+}
+
+function extractKatakana(text: string) {
+  return text.replace(/[^\u30A1-\u30F6]/g, "");
+}
+
+function hasBothScripts(text: string) {
+  return /[\u3041-\u3096]/.test(text) && /[\u30A1-\u30F6]/.test(text);
+}
+
 export default function QuizPage() {
   const [quizType, setQuizType] = useState<QuizType>("vocabulary");
   const [selectedBook, setSelectedBook] = useState("初級1");
@@ -20,16 +32,17 @@ export default function QuizPage() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ correct: boolean; explanation?: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ correct: boolean } | null>(null);
   const [score, setScore] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState<WrongAnswer[]>([]);
   const [state, setState] = useState<QuizState>("setup");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [inputHiragana, setInputHiragana] = useState("");
+  const [inputKatakana, setInputKatakana] = useState("");
   const spokenRef = useRef(false);
 
-  // 載入課程列表
   useEffect(() => {
     const api = quizType === "vocabulary" ? vocabularyAPI : grammarAPI;
     api.getLessons(selectedBook).then(data => setLessons(data)).catch(() => setLessons([]));
@@ -38,7 +51,6 @@ export default function QuizPage() {
 
   const q = questions[currentIndex];
 
-  // 每題出現時自動播音
   useEffect(() => {
     if (state === "playing" && q && q.type === "vocabulary") {
       spokenRef.current = false;
@@ -65,6 +77,9 @@ export default function QuizPage() {
       setWrongAnswers([]);
       setSelected(null);
       setFeedback(null);
+      setInputValue("");
+      setInputHiragana("");
+      setInputKatakana("");
       setState("playing");
     } catch {
       setError("無法載入題目，請確認 API 是否運行中。");
@@ -73,15 +88,38 @@ export default function QuizPage() {
     }
   };
 
-  const handleAnswer = (option: string) => {
+  const handleAnswer = (userAnswer: string) => {
     if (selected) return;
-    setSelected(option);
-    const correct = option === q.answer;
+    setSelected(userAnswer);
+    const correct = userAnswer === q.answer;
     setFeedback({ correct });
     if (correct) {
       setScore(s => s + 1);
     } else {
-      setWrongAnswers(prev => [...prev, { question: q, userAnswer: option }]);
+      setWrongAnswers(prev => [...prev, { question: q, userAnswer }]);
+    }
+  };
+
+  const handleVocabSubmit = () => {
+    if (selected) return;
+    const isMixed = hasBothScripts(q.answer);
+    if (isMixed) {
+      const hira = inputHiragana.trim();
+      const kata = inputKatakana.trim();
+      if (!hira || !kata) return;
+      const correct =
+        hira === extractHiragana(q.answer) &&
+        kata === extractKatakana(q.answer);
+      const userAnswer = hira + kata;
+      setSelected(userAnswer);
+      setFeedback({ correct });
+      if (correct) {
+        setScore(s => s + 1);
+      } else {
+        setWrongAnswers(prev => [...prev, { question: q, userAnswer }]);
+      }
+    } else {
+      if (inputValue.trim()) handleAnswer(inputValue.trim());
     }
   };
 
@@ -93,6 +131,8 @@ export default function QuizPage() {
       setSelected(null);
       setFeedback(null);
       setInputValue("");
+      setInputHiragana("");
+      setInputKatakana("");
     }
   };
 
@@ -137,7 +177,7 @@ export default function QuizPage() {
           </div>
           {quizType === "vocabulary" && (
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-sm text-purple-700">
-              👂 單字測驗為聽力模式：系統自動播放日文語音，請選出正確的中文意思
+              👂 單字測驗為聽力模式：系統自動播放日文語音，請輸入正確讀音
             </div>
           )}
           {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">{error}</div>}
@@ -163,8 +203,6 @@ export default function QuizPage() {
             {totalScore >= 80 ? "🎉 優秀！" : totalScore >= 60 ? "👍 繼續加油！" : "📚 多加練習！"}
           </div>
         </div>
-
-        {/* 錯題回顧 */}
         {wrongAnswers.length > 0 && (
           <div className="space-y-3">
             <h2 className="text-lg font-semibold text-red-600">❌ 答錯的題目（{wrongAnswers.length} 題）</h2>
@@ -184,7 +222,6 @@ export default function QuizPage() {
             ))}
           </div>
         )}
-
         <button onClick={() => setState("setup")}
           className="w-full bg-purple-500 text-white px-8 py-3 rounded-xl font-semibold hover:bg-purple-600 transition-colors">
           再測一次
@@ -194,6 +231,11 @@ export default function QuizPage() {
   }
 
   // ---- Playing ----
+  const isMixed = q && q.type === "vocabulary" && hasBothScripts(q.answer);
+  const canSubmit = isMixed
+    ? inputHiragana.trim() !== "" && inputKatakana.trim() !== ""
+    : inputValue.trim() !== "";
+
   return (
     <div className="max-w-lg mx-auto space-y-5">
       <div className="flex justify-between items-center">
@@ -212,7 +254,7 @@ export default function QuizPage() {
           <div className="text-center space-y-3">
             {q.type === "vocabulary" ? (
               <>
-                <p className="text-sm text-gray-500">👂 聽語音，選出正確的日文讀音</p>
+                <p className="text-sm text-gray-500">👂 聽語音，輸入正確的日文讀音</p>
                 <p className="text-3xl font-bold text-gray-800">{q.question}</p>
                 {q.word && <p className="text-pink-500 text-lg">{q.word}</p>}
                 <button onClick={() => speakJapanese(q.audio || q.answer)}
@@ -223,21 +265,48 @@ export default function QuizPage() {
             )}
           </div>
 
-          {/* 選項 / 輸入框 */}
+          {/* 輸入框 / 選項 */}
           {q.type === "vocabulary" ? (
             <div className="space-y-3">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter" && !selected && inputValue.trim()) handleAnswer(inputValue.trim()); }}
-                disabled={!!selected}
-                placeholder="輸入平假名或片假名..."
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-300 disabled:bg-gray-50"
-              />
+              {isMixed ? (
+                <>
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">平假名部分</label>
+                    <input
+                      type="text"
+                      value={inputHiragana}
+                      onChange={e => setInputHiragana(e.target.value)}
+                      disabled={!!selected}
+                      placeholder="輸入平假名..."
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-300 disabled:bg-gray-50"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">片假名部分</label>
+                    <input
+                      type="text"
+                      value={inputKatakana}
+                      onChange={e => setInputKatakana(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter" && !selected && canSubmit) handleVocabSubmit(); }}
+                      disabled={!!selected}
+                      placeholder="輸入片假名..."
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-300 disabled:bg-gray-50"
+                    />
+                  </div>
+                </>
+              ) : (
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && !selected && inputValue.trim()) handleVocabSubmit(); }}
+                  disabled={!!selected}
+                  placeholder="輸入平假名或片假名..."
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-300 disabled:bg-gray-50"
+                />
+              )}
               {!selected && (
-                <button onClick={() => { if (inputValue.trim()) handleAnswer(inputValue.trim()); }}
-                  disabled={!inputValue.trim()}
+                <button onClick={handleVocabSubmit} disabled={!canSubmit}
                   className="w-full bg-purple-500 text-white py-2.5 rounded-xl font-medium hover:bg-purple-600 transition-colors disabled:opacity-40">
                   確認答案
                 </button>
