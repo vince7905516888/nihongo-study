@@ -26,6 +26,7 @@ export default function QuizPage() {
   const [state, setState] = useState<QuizState>("setup");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inputValue, setInputValue] = useState("");
   const spokenRef = useRef(false);
 
   // 載入課程列表
@@ -91,6 +92,7 @@ export default function QuizPage() {
       setCurrentIndex(i => i + 1);
       setSelected(null);
       setFeedback(null);
+      setInputValue("");
     }
   };
 
@@ -221,22 +223,43 @@ export default function QuizPage() {
             )}
           </div>
 
-          {/* 選項 */}
-          <div className="space-y-3">
-            {q.options.filter(opt => opt !== "?").map(opt => {
-              let cls = "border border-gray-200 text-gray-700 hover:bg-gray-50";
-              if (selected) {
-                if (opt === q.answer) cls = "border-green-400 bg-green-50 text-green-700";
-                else if (opt === selected) cls = "border-red-400 bg-red-50 text-red-700";
-              }
-              return (
-                <button key={opt} onClick={() => handleAnswer(opt)} disabled={!!selected}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${cls}`}>
-                  {opt}
+          {/* 選項 / 輸入框 */}
+          {q.type === "vocabulary" ? (
+            <div className="space-y-3">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !selected && inputValue.trim()) handleAnswer(inputValue.trim()); }}
+                disabled={!!selected}
+                placeholder="輸入平假名或片假名..."
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-300 disabled:bg-gray-50"
+              />
+              {!selected && (
+                <button onClick={() => { if (inputValue.trim()) handleAnswer(inputValue.trim()); }}
+                  disabled={!inputValue.trim()}
+                  className="w-full bg-purple-500 text-white py-2.5 rounded-xl font-medium hover:bg-purple-600 transition-colors disabled:opacity-40">
+                  確認答案
                 </button>
-              );
-            })}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {q.options.filter(opt => opt !== "?").map(opt => {
+                let cls = "border border-gray-200 text-gray-700 hover:bg-gray-50";
+                if (selected) {
+                  if (opt === q.answer) cls = "border-green-400 bg-green-50 text-green-700";
+                  else if (opt === selected) cls = "border-red-400 bg-red-50 text-red-700";
+                }
+                return (
+                  <button key={opt} onClick={() => handleAnswer(opt)} disabled={!!selected}
+                    className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${cls}`}>
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* 回饋 */}
           {selected && feedback && (
