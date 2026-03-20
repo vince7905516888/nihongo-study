@@ -56,7 +56,7 @@ export default function QuizPage() {
     setLoading(true);
     setError(null);
     try {
-      const params: { type: string; count: number; book?: string; lesson?: string } = { type: quizType, count: 25, book: selectedBook };
+      const params: { type: string; count: number; book?: string; lesson?: string } = { type: quizType, count: quizType === "vocabulary" ? 9999 : 25, book: selectedBook };
       if (selectedLesson !== "全部") params.lesson = selectedLesson;
       const data = await quizAPI.getQuestions(params);
       setQuestions(data);
@@ -174,15 +174,25 @@ export default function QuizPage() {
 
   // ---- Result ----
   if (state === "result") {
-    const totalScore = Math.round((score / questions.length) * 100);
+    const pct = Math.round((score / questions.length) * 100);
+    const isVocab = questions[0]?.type === "vocabulary";
     return (
       <div className="max-w-lg mx-auto space-y-6">
         <h1 className="text-2xl font-bold">測驗結果</h1>
         <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
-          <div className="text-5xl font-bold text-purple-600">{totalScore} <span className="text-2xl">/ 100</span></div>
-          <p className="text-gray-600 mt-2">{questions.length} 題中答對 {score} 題</p>
+          {isVocab ? (
+            <>
+              <div className="text-5xl font-bold text-purple-600">{score} <span className="text-2xl">/ {questions.length}</span></div>
+              <p className="text-gray-600 mt-2">正確率 {pct}%</p>
+            </>
+          ) : (
+            <>
+              <div className="text-5xl font-bold text-purple-600">{pct} <span className="text-2xl">/ 100</span></div>
+              <p className="text-gray-600 mt-2">{questions.length} 題中答對 {score} 題</p>
+            </>
+          )}
           <div className="mt-3 text-2xl">
-            {totalScore >= 80 ? "🎉 優秀！" : totalScore >= 60 ? "👍 繼續加油！" : "📚 多加練習！"}
+            {pct >= 80 ? "🎉 優秀！" : pct >= 60 ? "👍 繼續加油！" : "📚 多加練習！"}
           </div>
         </div>
         {wrongAnswers.length > 0 && (
