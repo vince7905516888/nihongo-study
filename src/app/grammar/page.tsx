@@ -185,7 +185,8 @@ export default function GrammarPage() {
                                 <li key={i} className="bg-gray-50 rounded-lg p-3">
                                   <div className="flex items-center gap-2">
                                     <p className="font-medium text-gray-800">{ex.japanese}</p>
-                                    <button onClick={() => speakJapanese(ex.japanese)} className="text-lg hover:scale-110 transition-transform" title="播放語音">🔊</button>
+                                    <button onClick={() => speakJapanese(ex.japanese)} className="text-lg hover:scale-110 transition-transform" title="正常速度">🔊</button>
+                                    <button onClick={() => speakJapanese(ex.japanese, true)} className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-600 px-1.5 py-0.5 rounded transition-colors" title="慢速播放">🐢</button>
                                   </div>
                                   <p className="text-sm text-gray-500 mt-1">{ex.english}</p>
                                 </li>

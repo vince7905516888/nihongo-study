@@ -181,7 +181,8 @@ export default function VocabularyPage() {
               <div>
                 <div className="flex items-center gap-3">
                   <h2 className="text-3xl font-bold">{selected.word}</h2>
-                  <button onClick={() => speakJapanese(selected.reading)} className="text-2xl hover:scale-110 transition-transform">🔊</button>
+                  <button onClick={() => speakJapanese(selected.reading)} className="text-2xl hover:scale-110 transition-transform" title="正常速度">🔊</button>
+                  <button onClick={() => speakJapanese(selected.reading, true)} className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-600 px-1.5 py-0.5 rounded transition-colors" title="慢速播放">🐢</button>
                 </div>
                 <p className="text-pink-600 mt-1">{selected.reading}</p>
               </div>
