@@ -7,6 +7,8 @@ export interface Vocabulary {
   reading: string;
   meaning: string;
   level?: string;
+  book?: string;
+  lesson?: string;
   examples?: string[];
 }
 
@@ -56,8 +58,10 @@ async function gasPost<T>(action: string, body: Record<string, unknown>): Promis
 
 // --- Vocabulary API ---
 export const vocabularyAPI = {
-  getAll: (params?: { level?: string; search?: string }) =>
+  getAll: (params?: { level?: string; search?: string; book?: string; lesson?: string }) =>
     gasGet<Vocabulary[]>("getVocabulary", params as Record<string, string>),
+  getLessons: (book: string) =>
+    gasGet<string[]>("getLessons", { book }),
   getById: (id: string) =>
     gasGet<Vocabulary>("getVocabularyById", { id }),
 };
