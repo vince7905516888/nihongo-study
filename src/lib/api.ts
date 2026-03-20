@@ -24,6 +24,7 @@ export interface Grammar {
 export interface QuizQuestion {
   id: string;
   question: string;
+  word?: string;
   options: string[];
   answer: string;
   type: "vocabulary" | "grammar";

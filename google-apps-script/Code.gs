@@ -233,17 +233,18 @@ function getQuizQuestions(params) {
 function buildVocabQuestion(row, allRows) {
   var others = [];
   for (var i = 0; i < allRows.length; i++) {
-    if (String(allRows[i].id) !== String(row.id)) others.push(allRows[i].reading);
+    if (String(allRows[i].id) !== String(row.id)) others.push(allRows[i].meaning);
   }
   others.sort(function() { return Math.random() - 0.5; });
-  var options = [row.reading, others[0] || "?", others[1] || "?", others[2] || "?"];
+  var options = [row.meaning, others[0] || "?", others[1] || "?", others[2] || "?"];
   options.sort(function() { return Math.random() - 0.5; });
   return {
     id: String(row.id),
     type: "vocabulary",
-    question: "「" + row.meaning + "」的日文讀音是？",
+    question: row.reading,
+    word: row.word,
     options: options,
-    answer: row.reading
+    answer: row.meaning
   };
 }
 
@@ -270,7 +271,7 @@ function submitAnswer(questionId, userAnswer) {
     var vocabRows = sheetToObjects(getSheet("Vocabulary"));
     for (var i = 0; i < vocabRows.length; i++) {
       if (String(vocabRows[i].id) === String(questionId)) {
-        correctAnswer = vocabRows[i].reading;
+        correctAnswer = vocabRows[i].meaning;
         break;
       }
     }
