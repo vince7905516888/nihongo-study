@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { vocabularyAPI, type Vocabulary } from "@/lib/api";
+import { speakJapanese } from "@/lib/speech";
 
 const features = [
   {
@@ -36,6 +41,25 @@ const features = [
 ];
 
 export default function Home() {
+  const [search, setSearch] = useState("");
+  const [results, setResults] = useState<Vocabulary[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  const handleSearch = async () => {
+    if (!search.trim()) return;
+    setLoading(true);
+    setSearched(true);
+    try {
+      const data = await vocabularyAPI.getAll({ search: search.trim() });
+      setResults(data);
+    } catch {
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-10">
       {/* Hero */}
@@ -44,6 +68,53 @@ export default function Home() {
           日本語学習へようこそ 🌸
         </h1>
         <p className="text-lg text-gray-500">歡迎來到日文學習平台，開始你的學習之旅！</p>
+      </div>
+
+      {/* 單字查詢 */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+        <h3 className="text-lg font-semibold text-gray-700">🔍 單字快速查詢</h3>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") handleSearch(); }}
+            placeholder="輸入中文、日文或讀音..."
+            className="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          />
+          <button
+            onClick={handleSearch}
+            disabled={loading}
+            className="bg-blue-500 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-blue-600 transition-colors disabled:opacity-50"
+          >
+            {loading ? "查詢中..." : "查詢"}
+          </button>
+        </div>
+
+        {searched && (
+          <div className="space-y-2">
+            {results.length === 0 ? (
+              <p className="text-gray-400 text-sm text-center py-4">找不到符合的單字</p>
+            ) : (
+              results.map(w => (
+                <div key={w.id} className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3 bg-gray-50">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <span className="font-bold text-gray-800">{w.word}</span>
+                      <span className="text-pink-500 text-sm ml-2">{w.reading}</span>
+                    </div>
+                    <span className="text-gray-600 text-sm">{w.meaning}</span>
+                    {w.lesson && <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">{w.book} {w.lesson}</span>}
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button onClick={() => speakJapanese(w.reading)} className="text-xl hover:scale-110 transition-transform" title="正常速度">🔊</button>
+                    <button onClick={() => speakJapanese(w.reading, true)} className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-600 px-1.5 py-0.5 rounded transition-colors" title="慢速播放">🐢</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
       {/* Feature Cards */}
