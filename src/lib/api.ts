@@ -30,7 +30,7 @@ export interface QuizQuestion {
   audio?: string;
   options: string[];
   answer: string;
-  type: "vocabulary" | "grammar";
+  type: "vocabulary" | "grammar" | "conversation" | "examples";
 }
 
 export interface ConversationLine {
