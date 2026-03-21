@@ -31,6 +31,14 @@ const features = [
     textColor: "text-orange-700",
   },
   {
+    href: "/examples",
+    icon: "📋",
+    title: "例句練習",
+    desc: "各課例句對照，搭配語音練習",
+    color: "bg-indigo-50 border-indigo-200 hover:bg-indigo-100",
+    textColor: "text-indigo-700",
+  },
+  {
     href: "/quiz",
     icon: "✏️",
     title: "測驗練習",

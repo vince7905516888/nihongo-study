@@ -8,6 +8,7 @@ const navItems = [
   { href: "/vocabulary", label: "單字", icon: "📖" },
   { href: "/grammar", label: "文法", icon: "📝" },
   { href: "/conversation", label: "會話", icon: "💬" },
+  { href: "/examples", label: "例句", icon: "📋" },
   { href: "/quiz", label: "測驗", icon: "✏️" },
 ];
 

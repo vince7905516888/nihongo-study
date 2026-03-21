@@ -94,6 +94,25 @@ export const grammarAPI = {
     gasGet<Grammar>("getGrammarById", { id }),
 };
 
+// --- Examples API ---
+export interface ExampleLine {
+  id: string;
+  book: string;
+  lesson: string;
+  japanese: string;
+  reading: string;
+  chinese: string;
+}
+
+export const examplesAPI = {
+  getLessons: async (book: string) => {
+    const res = await gasGet<unknown>("getExamplesLessons", { book });
+    return Array.isArray(res) ? res as string[] : [];
+  },
+  getLines: (book: string, lesson: string) =>
+    gasGet<ExampleLine[]>("getExamples", { book, lesson }),
+};
+
 // --- Conversation API ---
 export const conversationAPI = {
   getLessons: async (book: string) => {
