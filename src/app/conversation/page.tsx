@@ -17,8 +17,7 @@ export default function ConversationPage() {
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
   const [lessons, setLessons] = useState<string[]>([]);
   const [lines, setLines] = useState<ConversationLine[]>([]);
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [showChinese, setShowChinese] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,8 +40,7 @@ export default function ConversationPage() {
     setSelectedLesson(lesson);
     setLoading(true);
     setError(null);
-    setInputs({});
-    setChecked({});
+    setShowChinese({});
     try {
       const data = await conversationAPI.getLines(selectedBook!, lesson);
       setLines(data);
@@ -59,14 +57,8 @@ export default function ConversationPage() {
     else if (view === "lessons") { setView("books"); setSelectedBook(null); }
   };
 
-  const handleCheck = (id: string, japanese: string) => {
-    const userInput = (inputs[id] || "").trim();
-    setChecked(prev => ({ ...prev, [id]: userInput === japanese }));
-  };
-
-  const handleReset = (id: string) => {
-    setInputs(prev => ({ ...prev, [id]: "" }));
-    setChecked(prev => { const n = { ...prev }; delete n[id]; return n; });
+  const toggleChinese = (id: string) => {
+    setShowChinese(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   const currentBook = BOOKS.find(b => b.id === selectedBook);
@@ -135,58 +127,29 @@ export default function ConversationPage() {
               {lines.length === 0 ? (
                 <p className="text-gray-400 text-center py-8">尚未新增會話資料</p>
               ) : (
-                lines.map(line => {
-                  const isChecked = line.id in checked;
-                  const isCorrect = checked[line.id];
-                  return (
-                    <div key={line.id} className="bg-white border border-gray-200 rounded-2xl p-5 space-y-3">
-                      {/* 說話者 + 中文 */}
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-bold bg-orange-100 text-orange-700 px-3 py-1 rounded-full">{line.speaker}</span>
-                        <span className="text-gray-600">{line.chinese}</span>
+                lines.map(line => (
+                  <div key={line.id} className="bg-white border border-gray-200 rounded-2xl p-5">
+                    <div className="flex items-start gap-3">
+                      <span className="text-sm font-bold bg-orange-100 text-orange-700 px-3 py-1 rounded-full shrink-0">{line.speaker}</span>
+                      <div className="flex-1">
+                        <p className="text-gray-800 font-medium">{line.japanese}</p>
+                        {showChinese[line.id] && (
+                          <p className="text-gray-500 text-sm mt-1">{line.chinese}</p>
+                        )}
                       </div>
-
-                      {/* 語音按鈕 */}
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-1 shrink-0">
                         <button onClick={() => speakJapanese(line.reading || line.japanese)}
                           className="text-xl hover:scale-110 transition-transform" title="正常速度">🔊</button>
                         <button onClick={() => speakJapanese(line.reading || line.japanese, true)}
                           className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-600 px-1.5 py-0.5 rounded transition-colors" title="慢速播放">🐢</button>
+                        <button onClick={() => toggleChinese(line.id)}
+                          className={`text-xs px-2 py-1 rounded-lg transition-colors ${showChinese[line.id] ? "bg-orange-200 text-orange-700" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
+                          中文
+                        </button>
                       </div>
-
-                      {/* 輸入比對 */}
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={inputs[line.id] || ""}
-                          onChange={e => setInputs(prev => ({ ...prev, [line.id]: e.target.value }))}
-                          onKeyDown={e => { if (e.key === "Enter") handleCheck(line.id, line.japanese); }}
-                          disabled={isChecked}
-                          placeholder="輸入日文..."
-                          className="flex-1 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:bg-gray-50 text-sm"
-                        />
-                        {!isChecked ? (
-                          <button onClick={() => handleCheck(line.id, line.japanese)}
-                            className="bg-orange-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-orange-600 transition-colors">
-                            比對
-                          </button>
-                        ) : (
-                          <button onClick={() => handleReset(line.id)}
-                            className="bg-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-300 transition-colors">
-                            重試
-                          </button>
-                        )}
-                      </div>
-
-                      {/* 比對結果 */}
-                      {isChecked && (
-                        <div className={`rounded-lg p-3 text-sm ${isCorrect ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
-                          {isCorrect ? "✅ 正確！" : `❌ 正確答案：${line.japanese}`}
-                        </div>
-                      )}
                     </div>
-                  );
-                })
+                  </div>
+                ))
               )}
             </div>
           )}
