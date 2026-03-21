@@ -33,6 +33,16 @@ export interface QuizQuestion {
   type: "vocabulary" | "grammar";
 }
 
+export interface ConversationLine {
+  id: string;
+  book: string;
+  lesson: string;
+  speaker: string;
+  japanese: string;
+  reading: string;
+  chinese: string;
+}
+
 export interface Progress {
   learnedWords: number;
   totalWords: number;
@@ -82,6 +92,16 @@ export const grammarAPI = {
   },
   getById: (id: string) =>
     gasGet<Grammar>("getGrammarById", { id }),
+};
+
+// --- Conversation API ---
+export const conversationAPI = {
+  getLessons: async (book: string) => {
+    const res = await gasGet<unknown>("getConversationLessons", { book });
+    return Array.isArray(res) ? res as string[] : [];
+  },
+  getLines: (book: string, lesson: string) =>
+    gasGet<ConversationLine[]>("getConversation", { book, lesson }),
 };
 
 // --- Quiz API ---

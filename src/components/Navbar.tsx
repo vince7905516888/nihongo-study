@@ -7,8 +7,8 @@ const navItems = [
   { href: "/", label: "首頁", icon: "🏠" },
   { href: "/vocabulary", label: "單字", icon: "📖" },
   { href: "/grammar", label: "文法", icon: "📝" },
+  { href: "/conversation", label: "會話", icon: "💬" },
   { href: "/quiz", label: "測驗", icon: "✏️" },
-  { href: "/progress", label: "進度", icon: "📊" },
 ];
 
 export default function Navbar() {
