@@ -30,14 +30,6 @@ const features = [
     color: "bg-purple-50 border-purple-200 hover:bg-purple-100",
     textColor: "text-purple-700",
   },
-  {
-    href: "/progress",
-    icon: "📊",
-    title: "學習進度",
-    desc: "追蹤已學單字、文法與測驗成績",
-    color: "bg-pink-50 border-pink-200 hover:bg-pink-100",
-    textColor: "text-pink-700",
-  },
 ];
 
 export default function Home() {
