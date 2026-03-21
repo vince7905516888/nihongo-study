@@ -23,6 +23,14 @@ const features = [
     textColor: "text-green-700",
   },
   {
+    href: "/conversation",
+    icon: "💬",
+    title: "課程會話",
+    desc: "練習各課對話，比對日文輸入",
+    color: "bg-orange-50 border-orange-200 hover:bg-orange-100",
+    textColor: "text-orange-700",
+  },
+  {
     href: "/quiz",
     icon: "✏️",
     title: "測驗練習",
@@ -110,16 +118,16 @@ export default function Home() {
       </div>
 
       {/* Feature Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {features.map((f) => (
           <Link
             key={f.href}
             href={f.href}
-            className={`border rounded-2xl p-6 transition-all ${f.color}`}
+            className={`border rounded-xl p-4 transition-all ${f.color}`}
           >
-            <div className="text-3xl mb-3">{f.icon}</div>
-            <h2 className={`text-xl font-semibold mb-1 ${f.textColor}`}>{f.title}</h2>
-            <p className="text-gray-600 text-sm">{f.desc}</p>
+            <div className="text-2xl mb-2">{f.icon}</div>
+            <h2 className={`text-sm font-semibold mb-0.5 ${f.textColor}`}>{f.title}</h2>
+            <p className="text-gray-500 text-xs">{f.desc}</p>
           </Link>
         ))}
       </div>
